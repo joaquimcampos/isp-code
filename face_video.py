@@ -9,7 +9,7 @@ from typing import Final
 import click
 from PIL import Image
 
-FPS: Final[int] = 30
+FPS: Final[int] = 50
 Final_W: Final[int] = 1920
 Final_H: Final[int] = 1080
 
