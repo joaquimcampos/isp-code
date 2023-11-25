@@ -6,5 +6,5 @@ do
   tmp="$(cut -d'.' -f1 <<<"$img_path")"
   base_filename="$(cut -d'/' -f2 <<<"$tmp")"
   outdir=output/"$base_filename"
-  python3 face_video.py $img_path --duration 10 --outdir $outdir
+  python3 face_video.py $img_path --outdir $outdir
 done

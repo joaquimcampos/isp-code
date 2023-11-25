@@ -2,14 +2,16 @@
 
 import os
 import cv2
-import math
 import subprocess
+import math
 from typing import Final
 
 import click
 from PIL import Image
 
-FPS: Final[int] = 50
+FPS: Final[int] = 30
+Final_W: Final[int] = 1920
+Final_H: Final[int] = 1080
 
 
 def write_video(img_paths: list[str], video_path: str):
@@ -45,24 +47,25 @@ def main(filename: str, outdir: str, zoom_factor: int, duration: float) -> None:
     base_filename = filename.split('/')[-1].split('.')[0]
 
     im = Image.open(filename)
+    w, h = im.size
+    assert math.isclose(w*1./h, Final_W*1./Final_H)
     img_paths: list[str] = []
 
     for i in range(frames_total):
-        sub_size = [
-            math.ceil(
-                size *
-                (1./zoom_factor * (frames_total - i)/frames_total +
-                 1. * i/frames_total)
+        sub_h = int(
+            h * 1. * (
+                1./zoom_factor * (frames_total - i)*1./frames_total +
+                i*1./frames_total
             )
-            for size in im.size
-        ]
+        )
+        sub_w = int(sub_h * 16*1./9)
         img_path = os.path.join(outdir, f"{base_filename}{i}.png")
         subprocess.run([
             "convert", filename,
             "-colorspace", "RGB",
             "-gravity", "Center",
-            "-crop", f"{sub_size[0]}x{sub_size[1]}+0+0",
-            "-resize", f"{im.size[0]}x{im.size[1]}!",  # noqa: W605
+            "-crop", f"{sub_w}x{sub_h}+0+0",
+            "-resize", f"{Final_W}x{Final_H}!",  # noqa: W605
             img_path
         ])
         print(f'Saved image in {img_path}.')
@@ -81,8 +84,8 @@ def main(filename: str, outdir: str, zoom_factor: int, duration: float) -> None:
 @click.command()
 @click.argument('filename', type=click.Path(exists=True))
 @click.option('--outdir', type=str, default="./output", show_default=True)
-@click.option('--zoom-factor', type=int, default=18, show_default=True)
-@click.option('--duration', type=float, default=10, show_default=True,
+@click.option('--zoom-factor', type=int, default=20, show_default=True)
+@click.option('--duration', type=float, default=15, show_default=True,
               help="Duration of zoom out video in seconds")
 def cli(filename: str, outdir: str, zoom_factor: int, duration: float):
     """Make zoom out video based on image."""
