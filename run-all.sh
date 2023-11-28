@@ -1,6 +1,6 @@
 #!/bin/bash
 
-assets_dir=assets
+assets_dir=assets-superres
 for img_path in "$assets_dir"/*
 do
   tmp="$(cut -d'.' -f1 <<<"$img_path")"

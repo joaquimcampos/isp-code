@@ -85,7 +85,7 @@ def main(filename: str, outdir: str, zoom_factor: int, duration: float) -> None:
 @click.argument('filename', type=click.Path(exists=True))
 @click.option('--outdir', type=str, default="./output", show_default=True)
 @click.option('--zoom-factor', type=int, default=20, show_default=True)
-@click.option('--duration', type=float, default=15, show_default=True,
+@click.option('--duration', type=float, default=60, show_default=True,
               help="Duration of zoom out video in seconds")
 def cli(filename: str, outdir: str, zoom_factor: int, duration: float):
     """Make zoom out video based on image."""
