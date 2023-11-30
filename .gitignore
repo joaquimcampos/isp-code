@@ -1,6 +1,5 @@
-output/
-assets-orig
-assets-superres/z*.png
+output*
+assets*
 
 
 # Byte-compiled / optimized / DLL files
