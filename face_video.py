@@ -13,6 +13,8 @@ FPS: Final[int] = 50
 Final_W: Final[int] = 1920
 Final_H: Final[int] = 1080
 
+# TODO: Super-resolution and resize to 5600 x 3150 before processing.
+
 
 def write_video(img_paths: list[str], video_path: str):
     """
@@ -52,28 +54,26 @@ def main(filename: str, outdir: str, zoom_factor: int, duration: float) -> None:
     img_paths: list[str] = []
 
     for i in range(frames_total):
-        sub_h = int(
-            h * 1. * (
-                1./zoom_factor * (frames_total - i)*1./frames_total +
-                i*1./frames_total
-            )
+        # initial zoom: zoom_factor, final zoom: 1
+        # zoom factor: 20 here. Make it general
+        # TODO: For 0.75 -> Mapping to 2x, use:
+        # 0.177341 + 19.8227 * math.exp(-3.18204)
+        zoom = (
+            0.941176 + 19.0588 *
+            math.exp(-5.78074 * (i*1./frames_total))
         )
-        sub_w = int(sub_h * 16*1./9)
+        # float(zoom_factor) * ((frames_total - i)*1./frames_total) +
+        #     1. * (i*1./frames_total)
         img_path = os.path.join(outdir, f"{base_filename}{i}.png")
-        subprocess.run([
-            "convert", filename,
-            "-colorspace", "RGB",
-            "-gravity", "Center",
-            "-crop", f"{sub_w}x{sub_h}+0+0",
-            "-resize", f"{Final_W}x{Final_H}!",  # noqa: W605
-            img_path
-        ])
+
+        cmd = (
+            "convert -distort SRT '{:.6f} 0' +repage ".format(zoom) +
+            f"{filename} -resize {Final_W}x{Final_H}! {img_path}"  # noqa: W605
+        )
+        subprocess.call(cmd, shell=True)
+        print(cmd)
         print(f'Saved image in {img_path}.')
         img_paths.append(img_path)
-
-        # if i == 0:
-        #     im_tmp = Image.open(img_path)
-        #     im_tmp.show()
 
     print(f'images saved in {outdir}.')
 
